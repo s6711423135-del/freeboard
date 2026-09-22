@@ -3,92 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IoT Dashboard - iot-135</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>IoT Realtime Dashboard - iot-135</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(20, 27, 45, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-temp: #ff5252;
+            --accent-humi: #38bdf8;
+            --accent-light: #facc15;
+            --accent-co2: #34d399;
+            --accent-pm25: #c084fc;
+            --accent-status: #4ade80;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Kanit', sans-serif;
+            font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif;
         }
+
         body {
-            background-color: #0f172a;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(192, 132, 252, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
             color: #f8fafc;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
         }
+
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
         }
+
         h1 {
-            color: #38bdf8;
-            font-size: 2.2rem;
-            margin-bottom: 5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
         }
+
         .status-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            background-color: #1e293b;
-            color: #4ade80;
-            font-size: 0.9rem;
-            border: 1px solid #334155;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 30px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(8px);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse 1.8s infinite;
+        }
+
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 24px;
             width: 100%;
-            max-width: 1000px;
+            max-width: 1080px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
         }
+
         .card {
-            background: #1e293b;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            border: 1px solid #334155;
-            transition: transform 0.2s, border-color 0.2s;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 28px 24px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
+            overflow: hidden;
         }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
         .card:hover {
-            transform: translateY(-5px);
-            border-color: #38bdf8;
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 40px -15px rgba(0, 0, 0, 0.6);
         }
+
         .card-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+            font-weight: 400;
             color: #94a3b8;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
+            letter-spacing: 0.3px;
         }
+
         .card-value {
-            font-size: 2.8rem;
-            font-weight: 600;
-            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
         }
+
         .card-unit {
-            font-size: 1rem;
-            color: #64748b;
-            margin-top: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
         }
-        /* Color Accent for Values */
-        .temp-color { color: #f87171; }
-        .humi-color { color: #60a5fa; }
-        .light-color { color: #fbbf24; }
-        .co2-color { color: #34d399; }
-        .pm25-color { color: #a78bfa; }
-        .status-color { color: #4ade80; }
+
+        /* Color Glow Themes */
+        .temp-color {
+            color: var(--accent-temp);
+            text-shadow: 0 0 25px rgba(255, 82, 82, 0.35);
+        }
+        .humi-color {
+            color: var(--accent-humi);
+            text-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+        }
+        .light-color {
+            color: var(--accent-light);
+            text-shadow: 0 0 25px rgba(250, 204, 21, 0.35);
+        }
+        .co2-color {
+            color: var(--accent-co2);
+            text-shadow: 0 0 25px rgba(52, 211, 153, 0.35);
+        }
+        .pm25-color {
+            color: var(--accent-pm25);
+            text-shadow: 0 0 25px rgba(192, 132, 252, 0.35);
+        }
+        .status-color {
+            color: var(--accent-status);
+            text-shadow: 0 0 25px rgba(74, 222, 128, 0.35);
+        }
 
         footer {
             margin-top: auto;
-            padding-top: 30px;
-            color: #64748b;
+            padding-top: 50px;
+            color: #475569;
             font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Keyframes */
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -96,7 +208,10 @@
 
     <header>
         <h1>IoT Realtime Dashboard</h1>
-        <div class="status-badge">● Live Data (iot-135)</div>
+        <div class="status-badge">
+            <span class="pulse-dot"></span>
+            <span>Live Data Connection (iot-135)</span>
+        </div>
     </header>
 
     <div class="grid-container">
@@ -111,7 +226,7 @@
         <div class="card">
             <div class="card-title">Humidity (ความชื้น)</div>
             <div class="card-value humi-color" id="val-humi">--</div>
-            <div class="card-unit">%</div>
+            <div class="card-unit">% RH</div>
         </div>
 
         <!-- 3. Light -->
@@ -144,24 +259,29 @@
     </div>
 
     <footer>
-        อัปเดตข้อมูลอัตโนมัติจาก Firebase Realtime Database
+        Connected to Firebase Realtime Database
     </footer>
 
     <script>
         const firebaseURL = 'https://siot-project-66b50-default-rtdb.asia-southeast1.firebasedatabase.app/iot-135/latest.json';
 
+        function formatNum(val, decimals = 1) {
+            if (val === undefined || val === null) return '--';
+            return Number(val).toFixed(decimals);
+        }
+
         async function fetchData() {
             try {
                 const response = await fetch(firebaseURL);
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('Network response error');
                 const data = await response.json();
 
                 if (data) {
-                    document.getElementById('val-temp').innerText = data.temp !== undefined ? data.temp : '--';
-                    document.getElementById('val-humi').innerText = data.humi !== undefined ? data.humi : '--';
-                    document.getElementById('val-light').innerText = data.light !== undefined ? data.light : '--';
-                    document.getElementById('val-co2').innerText = data.co2 !== undefined ? data.co2 : '--';
-                    document.getElementById('val-pm25').innerText = data.pm25 !== undefined ? data.pm25 : '--';
+                    document.getElementById('val-temp').innerText = formatNum(data.temp, 1);
+                    document.getElementById('val-humi').innerText = formatNum(data.humi, 1);
+                    document.getElementById('val-light').innerText = formatNum(data.light, 0);
+                    document.getElementById('val-co2').innerText = formatNum(data.co2, 0);
+                    document.getElementById('val-pm25').innerText = formatNum(data.pm25, 1);
                     document.getElementById('val-status').innerText = data.status === 1 ? 'ONLINE' : (data.status !== undefined ? data.status : '--');
                 }
             } catch (error) {
@@ -169,7 +289,6 @@
             }
         }
 
-        // ดึงข้อมูลครั้งแรกทันที และตั้งเวลาดึงข้อมูลใหม่ทุกๆ 3 วินาที
         fetchData();
         setInterval(fetchData, 3000);
     </script>
