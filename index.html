@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard - iot-135</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #38bdf8;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background-color: #1e293b;
+            color: #4ade80;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #38bdf8;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+        .card-value {
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+        .card-unit {
+            font-size: 1rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        /* Color Accent for Values */
+        .temp-color { color: #f87171; }
+        .humi-color { color: #60a5fa; }
+        .light-color { color: #fbbf24; }
+        .co2-color { color: #34d399; }
+        .pm25-color { color: #a78bfa; }
+        .status-color { color: #4ade80; }
+
+        footer {
+            margin-top: auto;
+            padding-top: 30px;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>IoT Realtime Dashboard</h1>
+        <div class="status-badge">● Live Data (iot-135)</div>
+    </header>
+
+    <div class="grid-container">
+        <!-- 1. Temperature -->
+        <div class="card">
+            <div class="card-title">Temperature (อุณหภูมิ)</div>
+            <div class="card-value temp-color" id="val-temp">--</div>
+            <div class="card-unit">°C</div>
+        </div>
+
+        <!-- 2. Humidity -->
+        <div class="card">
+            <div class="card-title">Humidity (ความชื้น)</div>
+            <div class="card-value humi-color" id="val-humi">--</div>
+            <div class="card-unit">%</div>
+        </div>
+
+        <!-- 3. Light -->
+        <div class="card">
+            <div class="card-title">Light Intensity (ความสว่าง)</div>
+            <div class="card-value light-color" id="val-light">--</div>
+            <div class="card-unit">Lux</div>
+        </div>
+
+        <!-- 4. CO2 -->
+        <div class="card">
+            <div class="card-title">CO2 Level (ก๊าซคาร์บอนฯ)</div>
+            <div class="card-value co2-color" id="val-co2">--</div>
+            <div class="card-unit">ppm</div>
+        </div>
+
+        <!-- 5. PM2.5 -->
+        <div class="card">
+            <div class="card-title">PM 2.5 (ฝุ่นละออง)</div>
+            <div class="card-value pm25-color" id="val-pm25">--</div>
+            <div class="card-unit">µg/m³</div>
+        </div>
+
+        <!-- 6. Status -->
+        <div class="card">
+            <div class="card-title">System Status (สถานะระบบ)</div>
+            <div class="card-value status-color" id="val-status">--</div>
+            <div class="card-unit">State</div>
+        </div>
+    </div>
+
+    <footer>
+        อัปเดตข้อมูลอัตโนมัติจาก Firebase Realtime Database
+    </footer>
+
+    <script>
+        const firebaseURL = 'https://siot-project-66b50-default-rtdb.asia-southeast1.firebasedatabase.app/iot-135/latest.json';
+
+        async function fetchData() {
+            try {
+                const response = await fetch(firebaseURL);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+
+                if (data) {
+                    document.getElementById('val-temp').innerText = data.temp !== undefined ? data.temp : '--';
+                    document.getElementById('val-humi').innerText = data.humi !== undefined ? data.humi : '--';
+                    document.getElementById('val-light').innerText = data.light !== undefined ? data.light : '--';
+                    document.getElementById('val-co2').innerText = data.co2 !== undefined ? data.co2 : '--';
+                    document.getElementById('val-pm25').innerText = data.pm25 !== undefined ? data.pm25 : '--';
+                    document.getElementById('val-status').innerText = data.status === 1 ? 'ONLINE' : (data.status !== undefined ? data.status : '--');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // ดึงข้อมูลครั้งแรกทันที และตั้งเวลาดึงข้อมูลใหม่ทุกๆ 3 วินาที
+        fetchData();
+        setInterval(fetchData, 3000);
+    </script>
+</body>
+</html>
